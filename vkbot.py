@@ -186,7 +186,6 @@ def show_one_product(text):
 if __name__ == '__main__':
     print('Бот запущен!')
     for event in longpoll.listen():
-        print(event.text.lower())
         if event.type == VkEventType.MESSAGE_NEW and not event.from_me:
             if event.text.lower() == "начать" or event.text.lower() == "вернуться в главное меню":
                 send_message(event.peer_id, "Привет! Мы - кондитерская bylok.net! Выбери интересующую категорию", keyboard=create_greeting_buttons())
