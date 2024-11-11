@@ -9,10 +9,8 @@ from vk_api.longpoll import VkEventType, VkLongPoll
 
 load_dotenv()
 
-# Токен бота
-# TOKEN = os.getenv("VK_TOKEN")
-# не забыть удалить токен, добавить gitignore и добавить в install python-dotenv 
 TOKEN = os.getenv("VK_TOKEN")
+
 # Подключение к API VK и создание объекта LongPoll
 vk_session = VkApi(token=TOKEN)
 longpoll = VkLongPoll(vk_session)
