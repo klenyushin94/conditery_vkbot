@@ -10,9 +10,9 @@ from vk_api.longpoll import VkEventType, VkLongPoll
 load_dotenv()
 
 # Токен бота
-TOKEN = os.getenv("VK_TOKEN")
+# TOKEN = os.getenv("VK_TOKEN")
 # не забыть удалить токен, добавить gitignore и добавить в install python-dotenv 
-
+TOKEN = os.getenv("VK_TOKEN")
 # Подключение к API VK и создание объекта LongPoll
 vk_session = VkApi(token=TOKEN)
 longpoll = VkLongPoll(vk_session)
@@ -198,7 +198,12 @@ if __name__ == '__main__':   #основная функция
             if event.text.lower() == "начать" or event.text.lower() == "вернуться в главное меню":
                 send_message(
                     event.peer_id,
-                    "БУ! Испугался? Не бойся! Иди к нам! Мы - кондитерская bylok.net! Выбери интересующую категорию",
+                    (
+                        "БУ! Испугался? Не бойся! Иди к нам! "
+                        "Мы - кондитерская bylok.net! Выбери "
+                        "интересующую категорию и напишите, "
+                        "что хотели бы купить"
+                    ),    
                     keyboard=create_greeting_buttons()
                 )
             elif event.text.lower() == "торты":
@@ -253,7 +258,7 @@ if __name__ == '__main__':   #основная функция
             else:
                 send_message(
                     event.peer_id,
-                    "Я не понимаю ваш запрос. Выберите категорию десерта!",
+                    "",
                     keyboard=create_greeting_buttons()
                 )
                 
