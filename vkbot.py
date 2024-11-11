@@ -1,22 +1,31 @@
 import json
-import os
 from vk_api import VkApi
 from vk_api.longpoll import VkLongPoll, VkEventType
 import random
-from vk_api.keyboard import VkKeyboard
+import os
 from vk_api import VkUpload
 import sqlite3
+import os
 
-# Токен вашего бота
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Токен бота
+TOKEN = os.getenv("VK_TOKEN")
 TOKEN = 'vk1.a.KwYHDEIMWw6VMI5lTIcNrgVH9886g_A-7dIO6LTWXAor7Ezz61anAD1U3Z397O55phaBtK2vjcLiVKUCaQYJwhxIKkAVYWE_y7X_YXrLoani2VkeglEfHMkXerMYGq_RtrIGmjX-2_FhGbzCbKBmzKPTDPTdo2HmvzdiwrFPHCVWiFhsZk61QEVgHqlVcUC9Ss-piU3iJBngplw8UsITvw'
+# не забыть удалить токен, добавить gitignore и добавить в install python-dotenv 
 
-# Путь к изображению
-image_path = "C:/Dev/conditery_vkbot/moskva.jpeg"
+# Подключение к API VK и создание объекта LongPoll
+vk_session = VkApi(token=TOKEN)
+longpoll = VkLongPoll(vk_session)
+vk = vk_session.get_api()
 
-# ID сообщества (замените на реальный ID вашего сообщества)
-community_id = 139829694  # Замените на реальный ID вашего сообщества
 
 def send_photo(photo1):
+    """
+    Функция для загрузки фотографии.
+    """
     global attachment
     upload = VkUpload(vk_session)
     photo = upload.photo_messages(photo1)
@@ -25,11 +34,6 @@ def send_photo(photo1):
     access_key = photo[0]['access_key']
     attachment = f'photo{owner_id}_{photo_id}_{access_key}'
     return attachment
-
-# Подключение к API VK и создание объекта LongPoll
-vk_session = VkApi(token=TOKEN)
-longpoll = VkLongPoll(vk_session)
-vk = vk_session.get_api()
 
 
 def connect_to_database():
@@ -73,7 +77,7 @@ def create_greeting_buttons():
 
 def create_greeting_buttons_2():
     """
-    Создание клавиатуры с кнопками для выбора продукта.
+    Создание клавиатуры с кнопкой возврата в главное меню.
     """
     keyboard = {
         "one_time": False,
@@ -137,13 +141,13 @@ def create_greeting_buttons_trifle():
 
 def create_greeting_buttons_bento():
     """
-    Создание клавиатуры с кнопками для выбора трайфла.
+    Создание клавиатуры с кнопками для выбора бенто.
     """
     keyboard = {
         "one_time": False,
         "inline": True,
         "buttons": [
-            [{"action": {"type": "text", "label": "Бетно-торт шоколадный"}}],
+            [{"action": {"type": "text", "label": "Шоколадный"}}],
             [{"action": {"type": "text", "label": "Бенто-торт с черникой"}}],
             [{"action": {"type": "text", "label": "Бенто-торт с клубникой"}}],
             [{"action": {"type": "text", "label": "Вернуться в главное меню"}}],
@@ -152,7 +156,7 @@ def create_greeting_buttons_bento():
     return json.dumps(keyboard)
 
 
-def send_message(peer_id, message, attachments=None, keyboard=None):
+def send_message(peer_id, message, keyboard=None):
     """
     Функция для отправки сообщений пользователю.
     """
@@ -165,11 +169,14 @@ def send_message(peer_id, message, attachments=None, keyboard=None):
 
 
 def show_one_product(text):
+    """
+    Функция для формирования и отправки сообщения пользователю по конкретному продукту.
+    """
     products = get_products_by_name(text)
     if products:
         for i, product in enumerate(products, start=1):
             message = ''
-            name, type, description, image = product[1], product[2], product[3], product[4]
+            name, description, image = product[1], product[3], product[4]
             message += f"{name}\nОписание: {description}\n\n"
             attachment = send_photo(image)
             send_message(event.peer_id, message)
@@ -180,23 +187,47 @@ def show_one_product(text):
                 keyboard = create_greeting_buttons_2()
             )
     else:
-        send_message(event.peer_id, "К сожалению, информации в базе данных нет", keyboard=create_greeting_buttons_2())
+        send_message(
+            event.peer_id,
+            "К сожалению, информации в базе данных нет",
+            keyboard=create_greeting_buttons_2()
+        )
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':   #основная функция
     print('Бот запущен!')
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and not event.from_me:
             if event.text.lower() == "начать" or event.text.lower() == "вернуться в главное меню":
-                send_message(event.peer_id, "Привет! Мы - кондитерская bylok.net! Выбери интересующую категорию", keyboard=create_greeting_buttons())
+                send_message(
+                    event.peer_id,
+                    "БУ! Испугался? Не бойся! Иди к нам! Мы - кондитерская bylok.net! Выбери интересующую категорию",
+                    keyboard=create_greeting_buttons()
+                )
             elif event.text.lower() == "торты":
-                send_message(event.peer_id, "Выберите торт", keyboard=create_greeting_buttons_product())
+                send_message(
+                    event.peer_id,
+                    "Выберите торт",
+                    keyboard=create_greeting_buttons_product()
+                )
             elif event.text.lower() == "выпечка":
-                send_message(event.peer_id, "Выберите выпечку", keyboard=create_greeting_buttons_baker())
+                send_message(
+                    event.peer_id,
+                    "Выберите выпечку",
+                    keyboard=create_greeting_buttons_baker()
+                )
             elif event.text.lower() == "трайфлы":
-                send_message(event.peer_id, "Выберите трайфл", keyboard=create_greeting_buttons_trifle())
+                send_message(
+                    event.peer_id, 
+                    "Выберите трайфл",
+                    keyboard=create_greeting_buttons_trifle()
+                )
             elif event.text.lower() == "бенто-торты":
-                send_message(event.peer_id, "Выберите бенто-торт", keyboard=create_greeting_buttons_bento())
+                send_message(
+                    event.peer_id,
+                    "Выберите бенто-торт",
+                    keyboard=create_greeting_buttons_bento()
+                )
             elif event.text.lower() == "киевский":
                 show_one_product(event.text)
             elif event.text.lower() == "наполеон":
@@ -215,7 +246,7 @@ if __name__ == '__main__':
                 show_one_product(event.text)
             elif event.text.lower() == "ягодный трайфл":
                 show_one_product(event.text)
-            elif event.text.lower() == "бенто-торт шоколадный":
+            elif event.text.lower() == "шоколадный":
                 show_one_product(event.text)
             elif event.text.lower() == "бенто-торт с черникой":
                 show_one_product(event.text)
@@ -223,5 +254,9 @@ if __name__ == '__main__':
                 show_one_product(event.text)
             
             else:
-                send_message(event.peer_id, "Я не понимаю ваш запрос. Выберите категорию десерта!", keyboard=create_greeting_buttons())
+                send_message(
+                    event.peer_id,
+                    "Я не понимаю ваш запрос. Выберите категорию десерта!",
+                    keyboard=create_greeting_buttons()
+                )
                 
