@@ -1,19 +1,16 @@
 import json
-from vk_api import VkApi
-from vk_api.longpoll import VkLongPoll, VkEventType
+import os
 import random
-import os
-from vk_api import VkUpload
 import sqlite3
-import os
 
 from dotenv import load_dotenv
+from vk_api import VkApi, VkUpload
+from vk_api.longpoll import VkEventType, VkLongPoll
 
 load_dotenv()
 
 # Токен бота
 TOKEN = os.getenv("VK_TOKEN")
-TOKEN = 'vk1.a.KwYHDEIMWw6VMI5lTIcNrgVH9886g_A-7dIO6LTWXAor7Ezz61anAD1U3Z397O55phaBtK2vjcLiVKUCaQYJwhxIKkAVYWE_y7X_YXrLoani2VkeglEfHMkXerMYGq_RtrIGmjX-2_FhGbzCbKBmzKPTDPTdo2HmvzdiwrFPHCVWiFhsZk61QEVgHqlVcUC9Ss-piU3iJBngplw8UsITvw'
 # не забыть удалить токен, добавить gitignore и добавить в install python-dotenv 
 
 # Подключение к API VK и создание объекта LongPoll
